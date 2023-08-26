@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=0.8, user-scalable=no">
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    .notepad {
+      width: 100%;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .sticky-note {
+      background-color: #ffffcc;
+      border: 1px solid #ccc;
+      padding: 20px;
+      margin: 10px;
+      border-radius: 10px;
+      width: 400px;
+      cursor: pointer;
+    }
+
+    .sticky-note.defaults {
+      background-color: #ffffcc;
+    }
+
+    .sticky-note.light-pink {
+      background-color: #ffb6c1;
+    }
+
+    .sticky-note.coral {
+      background-color: coral;
+    }
+
+    .sticky-note.light-green {
+      background-color: lightgreen;
+    }
+
+    .sticky-note.light-blue {
+      background-color: lightblue;
+    }
+
+    .sticky-note.light-purple {
+      background-color: lavender;
+    }
+
+    .sticky-note.light-orange {
+      background-color: lightsalmon;
+    }
+  </style>
+  <title>Notii</title>
+<link rel="icon" type="image/x-icon" href="icon.png">
+</head>
+<body>
+<center><h1><img src="title.png" alt="Notii"></h1></center>
+  <div class="notepad" id="notepad">
+    <!-- Sticky notes will be added here dynamically -->
+  </div>
+  <script>
+    const notepad = document.getElementById('notepad');
+    let stickyNoteCount = 0;
+
+    function createStickyNote(content = '', color = 'default') {
+      const stickyNote = document.createElement('div');
+      stickyNote.className = `sticky-note ${color}`;
+      stickyNote.contentEditable = true;
+      stickyNote.addEventListener('input', saveNotes);
+
+      // Add click event listener to change colors
+      stickyNote.addEventListener('click', () => {
+        const colorClasses = ['default', 'light-pink', 'coral', 'light-green', 'light-blue', 'light-purple', 'light-orange'];
+        const currentClass = stickyNote.className.split(' ')[1];
+        const currentIndex = colorClasses.indexOf(currentClass);
+        const nextIndex = (currentIndex + 1) % colorClasses.length;
+        stickyNote.className = `sticky-note ${colorClasses[nextIndex]}`;
+        saveNotes();
+      });
+
+      stickyNote.innerHTML = content; // Set the content
+
+      notepad.appendChild(stickyNote);
+      stickyNoteCount++;
+    }
+
+    function saveNotes() {
+      const notes = [];
+      const stickyNotes = document.querySelectorAll('.sticky-note');
+      stickyNotes.forEach(note => {
+        notes.push({ content: note.innerHTML, color: note.className.split(' ')[1] });
+      });
+      localStorage.setItem('stickyNotes', JSON.stringify(notes));
+    }
+
+    function loadNotes() {
+      const savedNotes = localStorage.getItem('stickyNotes');
+      if (savedNotes) {
+        const notes = JSON.parse(savedNotes);
+        notes.forEach(noteData => {
+          createStickyNote(noteData.content, noteData.color); // Provide content and color
+        });
+      }
+    }
+
+    loadNotes();
+
+    // Create initial sticky notes
+    for (let i = 0; i < 15; i++) {
+      createStickyNote();
+    }
+
+    // Load more sticky notes when scrolling
+    window.addEventListener('scroll', () => {
+      if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) {
+        for (let i = 0; i < 10; i++) {
+          createStickyNote();
+        }
+      }
+    });
+  </script>
+</body>
+</html>
